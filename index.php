@@ -18,7 +18,12 @@ session_start();
 
 
 function pwp_normalize_password($pwd){
-    return strtr(strtolower($pwd),'áéőö','aeoo');
+
+    $pwd = strtolower($pwd);
+    
+    $pwd =  mb_ereg_replace('á','a',$pwd);
+    $pwd =  mb_ereg_replace('ő','o',$pwd);
+
 }
 
 function pwp_checkauth($arg){
@@ -29,7 +34,7 @@ function pwp_checkauth($arg){
       if (pwp_normalize_password($_REQUEST['protect-with-password'])===pwp_normalize_password(get_option('pwp_password'))){
          $_SESSION[$SESSION_KEY] = true;
       }         
-   } elseif ($_REQUEST['protect-with-password'] && sha1(get_option('pwp_password'))==$_REQUEST['protect-with-hash']){
+   } elseif ($_REQUEST['protect-with-hash'] && sha1(pwp_normalize_password(get_option('pwp_password')))==$_REQUEST['protect-with-hash']){
       $_SESSION[$SESSION_KEY] = true;
    }
 
@@ -42,7 +47,7 @@ function pwp_checkauth($arg){
 }
 
 function pwp_authorized_link($link){
-   $pwd = sha1(get_option('pwp_password'));
+   $pwd = sha1(pwp_normalize_password(get_option('pwp_password')));
    if (strpos($link,"?")){
       return $link."&protect-with-hash=".$pwd;
    } else {
@@ -61,7 +66,7 @@ add_action('admin_menu', 'pwp_plugin_menu');
 
 function pwp_plugin_menu() {
 
-  add_options_page('Protect with Password', 'Password Protection', 'manage_options', 'pwpw_admin_meny', 'pwp_plugin_options');
+  add_options_page('Protect with Password', 'Password Protection', 'manage_options', 'pwpw_admin_menu', 'pwp_plugin_options');
   add_action( 'admin_init', 'pwp_register_mysettings' );
 }
 
