@@ -16,12 +16,17 @@ add_filter('feed_link','pwp_feed_link',1,2);
 
 session_start();
 
+
+function pwp_normalize_password($pwd){
+    return strtr(strtolower($pwd),'áéőö','aeoo');
+}
+
 function pwp_checkauth($arg){
    if ($_REQUEST['pwplogout']){
       unset($_SESSION[$SESSION_KEY]);
       //authorized      
    } elseif ($_REQUEST['protect-with-password']){
-      if ($_REQUEST['protect-with-password']===get_option('pwp_password')){
+      if (pwp_normalize_password($_REQUEST['protect-with-password'])===pwp_normalize_password(get_option('pwp_password'))){
          $_SESSION[$SESSION_KEY] = true;
       }         
    } elseif ($_REQUEST['protect-with-password'] && sha1(get_option('pwp_password'))==$_REQUEST['protect-with-hash']){
@@ -80,12 +85,11 @@ function pwp_plugin_options(){
 
 <table class="form-table">
 <tr valign="top">
-<th scope="row">Logging message:</th>
+<th scope="row">Login message</th>
 <td><input type="text" name="pwp_message" value="<?php echo get_option('pwp_message'); ?>" /></td>
 </tr>
 <tr valign="top">
 <th scope="row">Password for protection</th>
-
 <td><input type="text" name="pwp_password" value="<?php echo get_option('pwp_password'); ?>" /></td>
 </tr>
 </table>
