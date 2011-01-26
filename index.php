@@ -23,6 +23,7 @@ function pwp_normalize_password($pwd){
     
     $pwd =  mb_ereg_replace('á','a',$pwd);
     $pwd =  mb_ereg_replace('ő','o',$pwd);
+    return $pwd;
 
 }
 
